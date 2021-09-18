@@ -1,6 +1,9 @@
+import ctypes
 import requests
 import random
 import datetime
+# import time
+
 import secrets
 
 def getWeather():
@@ -34,10 +37,19 @@ def getRandomWallpaper():
     page = random.randint(0,5)
     n = random.randint(0,80)
 
-    url = f"https://api.pexels.com/v1/search?query={weather}%20{period}&orientation=landscape&size=large&page={page}&per_page=80"    
+    url = f"https://api.pexels.com/v1/search?query={weather}%20{period}&orientation=landscape&size=large&per_page=80"    
 
-    r = requests.get(url, headers=header).json()['photos'][n]['src']['landscape']
+    imageURL = requests.get(url, headers=header).json()['photos'][n]['src']['original']
+    data = requests.get(imageURL).content
 
-    return r, weather, period
+    with open('wallpaper.png', 'wb') as handler:
+        handler.write(data)
 
-print(getRandomWallpaper())
+    print(imageURL, weather, period)
+
+def changeBG():
+    getRandomWallpaper()
+
+    ctypes.windll.user32.SystemParametersInfoW(20, 0, secrets.PATH['wallpaper'], 3)
+
+changeBG()
